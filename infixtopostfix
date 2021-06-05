@@ -1,0 +1,230 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<ctype.h>
+#include<string.h>
+#define boyut 50
+
+int stack[boyut];
+int top=-1;
+
+int operator_oncelik(char);
+int operator_kontrol(char);
+void StackYazdir();
+void push(int);
+int pop();
+
+
+void push(int eleman)
+{
+    if(top<boyut)
+    {
+        top=top+1;
+        stack[top]=eleman;
+
+    }
+
+    else
+    {
+        printf("Stack dolu!");
+
+    }
+}
+
+int pop(){
+
+
+    int eleman;
+    if(top>=0)
+    {
+        eleman=stack[top];
+        top=top-1;
+    }
+
+    else{
+
+        printf("Cikarilacak eleman bulunmamaktadir.");
+
+    }
+    return eleman;
+
+
+}
+
+void StackYazdir()
+{
+
+	if(top==-1)
+	{
+	    printf("\n");
+		printf("Stack bos.");
+	}
+	else
+	{
+	    printf("\n");
+		printf("Stack : ");
+		for(int i=top;i>=0;--i)
+			printf("%c ",stack[i]);
+    }
+}
+
+int operator_kontrol(char op)
+{
+	if(op == '^' || op == '*' || op == '/' || op == '+' || op =='-')
+	{
+	    return 1;
+	}
+
+	else
+    {
+        return 0;
+	}
+}
+
+
+int operator_oncelik(char op)
+{
+    if(op == '^')
+	{
+		return 3;
+	}
+	else if(op == '*' || op == '/')
+	{
+		return 2;
+	}
+	else if(op == '+' || op == '-')
+	{
+		return 1;
+	}
+	else
+        return 0;
+
+}
+
+void Cevir(char infix[], char postfix[])
+{
+    int i=0;
+    int j=0;
+    char pop_el;
+
+    push('(');
+	strcat(infix,")");
+
+	while(infix[i]!= '\0')
+    {
+        if(infix[i] == '('){
+            push(infix[i]);
+            StackYazdir();
+        }
+
+
+        else if( isdigit(infix[i]) || isalpha(infix[i]))
+        {
+            postfix[j] = infix[i];
+            j=j+1;
+
+
+        }
+
+
+        else if (operator_kontrol(infix[i])==1)
+        {
+            pop_el = pop();
+            StackYazdir();
+
+            while(operator_kontrol(pop_el)==1 && operator_oncelik(pop_el) >= operator_oncelik(infix[i]))
+            {
+                postfix[j]=pop_el;
+                j=j+1;
+                pop_el=pop();
+
+            }
+
+            push(pop_el);
+            StackYazdir();
+            push(infix[i]);
+
+        }
+
+        else if(infix[i] == ')')
+        {
+            pop_el = pop();
+            while(pop_el != '(')
+            {
+                postfix[j] = pop_el;
+                j=j+1;
+                pop_el = pop();
+            }
+
+            StackYazdir();
+        }
+
+        i=i+1;
+
+    }
+
+	postfix[j] = '\0';
+
+
+}
+
+
+
+int main()
+{
+    char infix[boyut], postfix[boyut];
+    int i , pop1, pop2, sonuc;
+
+
+    printf("Postfix'e cevirmek istediginiz infix ifadeyi giriniz: ");
+    scanf("%s", &infix);
+
+    Cevir(infix,postfix);
+    printf("\n\n");
+	printf("------------------------------------------");
+	printf("\n\n");
+	printf("Ifadenin postfix hali : %s", postfix);
+
+	for(i=0; postfix[i]!= '\0'; i++)
+    {
+        if(isdigit(postfix[i]))
+            push(postfix[i]-'0');
+
+        else if(operator_kontrol(postfix[i])==1)
+        {
+            pop1=pop();
+            pop2=pop();
+
+            if(postfix[i] == '^')
+                sonuc = pow(pop2,pop1);
+
+            else if(postfix[i] == '*')
+                sonuc = pop2*pop1;
+
+            else if(postfix[i] == '/')
+                sonuc = pop2/pop1;
+
+            else if(postfix[i] == '+')
+                sonuc = pop2+pop1;
+
+            else if(postfix[i] == '-')
+                sonuc = pop2-pop1;
+
+
+             push(sonuc);
+        }
+
+
+    }
+
+
+	int postfixsonuc = pop();
+
+	printf("\n\n");
+	printf("------------------------------------------");
+	printf("\n\n");
+    printf("Postfix ifadenin sonucu : %d ",postfixsonuc);
+    printf("\n\n");
+
+
+    return 0;
+}
